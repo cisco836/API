@@ -23,11 +23,13 @@ router.get('/shipmentIn', function (req, res) {
 
 router.post('/shipmentIn',(req,res)=>{
     console.log(req.body.tlnum)
-    pool.query((`Insert into shipmentin values(null,"${req.body.tlnum}","${req.body.products}",${req.body.token},${req.body.quantity},"${req.body.shift}","${req.body.customer}","${req.body.transfertype}","${req.body.date_in}",${req.body.time_in},${req.body.tare_weight},${req.body.remarks})`),(err)=>{
+    pool.query((`Insert into shipmentin values(null,"${req.body.tlnum}","${req.body.products}",${req.body.token},${req.body.quantity},"${req.body.shift}","${req.body.customer}","${req.body.transfertype}","${req.body.date_in}",${req.body.time_in},${req.body.tare_weight},${req.body.remarks})`),(data,err)=>{
         if(err){
             console.error(err)
         }
+        console.log(data)
     })
+    console.log(res)
     res.send("Database updated!")
 })
 

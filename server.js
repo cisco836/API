@@ -7,10 +7,10 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 const router = require('./shipmentIn')
-
+const router2 = require('./shipmentOut')
 
 app.use('/route',router)
-
+app.use('/route2',router2)
 app.get('/',(req,res)=>{
    
 })
