@@ -1,13 +1,14 @@
 const cors = require('cors')
 const express = require("express")
 const app = express()
-const pool = require('./connection')
+const pool = require('./Middleware/connection')
 const bodyParser = require("body-parser")
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
-const router = require('./shipmentIn')
-const router2 = require('./shipmentOut')
+const router = require('./Routes/shipmentIn')
+const router2 = require('./Routes/shipmentOut')
+
 
 app.use('/route',router)
 app.use('/route2',router2)

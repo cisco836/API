@@ -1,9 +1,9 @@
 const express = require("express")
 const router = express.Router()
-const pool = require('./connection')
+const pool = require('../Middleware/connection')
 const bodyParser = require("body-parser")
-const litAt60 = require('./Litresat60')
-const Volumeat85 = require('./Volumeat85')
+const litAt60 = require('../Calculations/Litresat60')
+const Volumeat85 = require('../Calculations/Volumeat85')
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 var jsonParser = bodyParser.json()
 
