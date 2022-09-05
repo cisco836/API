@@ -5,35 +5,44 @@ const bodyParser = require("body-parser")
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 var jsonParser = bodyParser.json()
 
-router.get('/shipmentIn',jsonParser,(req,res)=>{
-    pool.query('SELECT * FROM shipmentin',(err,data)=>{
-        if(err)throw err
-        res.send(data)
-        console.log(data)
-        console.log(pool._allConnections.length)
-      })  
-})
 
-router.get('/shipmentIn', function (req, res) {
-    pool.query(`select * from shipmentin where tlnumber="${req.body.id}"`, function (error, results, fields) {
-       if (error) throw error;
-       res.send(results.body);
-     });
- });
-
-router.post('/shipmentIn',(req,res)=>{
-    console.log(req.body.tlnum)
-    pool.query((`Insert into shipmentin values(null,"${req.body.tlnum}","${req.body.products}",${req.body.token},${req.body.quantity},"${req.body.shift}","${req.body.customer}","${req.body.transfertype}","${req.body.date_in}",${req.body.time_in},${req.body.tare_weight},${req.body.remarks})`),(data,err)=>{
-        if(err){
-            console.error(err)
-        }
-        console.log(data)
+//Extract All QueryPromise
+queryPromise_extractALL = ()=>{
+    return new Promise((resolve,reject)=>{
+        pool.query('SELECT * FROM shipmentin',(err,results)=>{
+            if(err){
+                return reject(err)
+            }
+            return resolve(results)
+        })
     })
-    console.log(res)
-    res.send("Database updated!")
-})
+}
+//Extract BY Token QueryPromise
+queryPromise_extractByToken = (tlNumber)=>{
+    return new Promise((resolve,reject)=>{
+        pool.query(`select * from shipmentin where tlNumber="${tlNumber}"`,(error,results)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(results);
+        })
+    })
+}
 
-router.put('/shipmentIn',(req,res)=>{
+//Insert data QueryPromise
+queryPromise_Insert = (req)=>{
+    return new Promise((resolve,reject)=>{
+        pool.query(`Insert into shipmentIn values(null,"${req.body.tlnum}","${req.body.products}",${req.body.token},${req.body.quantity},"${req.body.shift}","${req.body.customer}","${req.body.transfertype}","${req.body.date_in}",${req.body.time_in},${req.body.tare_weight},"${req.body.remarks}")`,(error,results)=>{
+            if(error){
+                return reject(error)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//Edit data QueryPromise
+queryPromise_Edit = (req)=>{
     if(Object.keys(req.body).length===0){
         res.send("No values to edit!")
     }
@@ -45,25 +54,91 @@ router.put('/shipmentIn',(req,res)=>{
     sql = sql.slice(0,-2);
     sql+=` WHERE serialNumber=${req.body.serialNumber};`;
     console.log(sql)
-    pool.query(sql,(err)=>{
-        if(err){
-            console.error(err)
-            res.end("Database Error!")
-        }
-        else{
-            res.send("Data updated!")
-        }
+    return new Promise((resolve,reject)=>{
+        pool.query(sql,(error,results)=>{
+            if(err){
+                return reject(error)
+            }
+            return resolve(results)
+        })
     })
+}
+
+//Delete data by serialNumber QueryPromise
+queryPromise_Delete = (serialNumber)=>{
+    return new Promise((resolve,reject)=>{
+        pool.query(`delete from shipmentin where serialNumber = ${req.body.serialNumber}`,(error,results)=>{
+            if(error){
+                return reject(error)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//Extract All EndPoint
+router.get('/shipmentIn',jsonParser,async (req,res)=>{
+    try{
+        const results =await queryPromise_extractALL();
+        console.log(results);
+        res.send(results)
+    }
+    catch(error){
+        console.log(error)
+        res.send(error);
+    }
 })
 
-router.delete('/shipmentIn',(req,res)=>{
-    pool.query(`delete from shipmentin where serialNumber = ${req.body.serialNumber}`,(err, result)=>{
-        if(err){
-            console.error(err)
-        }
-        console.log(result.affectedRows)
-    })
-    res.send(`Deleted row number: ${req.body.serialNumber}`)
+//Extract By Token EndPoint
+router.get('/shipmentIn',async (req, res)=>{
+    try{
+        const results = await queryPromise_extractByToken(req.body.tlNumber);
+        console.log(results);
+        res.send(results);
+    }
+    catch(error){
+        console.log(error);
+        res.send(error);
+    }
+});
+
+//Insert data EndPoint
+router.post('/shipmentIn',async (req,res)=>{
+    try{
+        const results = await queryPromise_Insert(req)
+        console.log(results)
+        res.send(results)
+    }
+    catch(error){
+        console.log(error)
+        res.send(error)
+    }
+})
+
+//Edit EndPoint
+router.put('/shipmentIn',async (req,res)=>{
+    try{
+        const results =await queryPromise_Edit(req);
+        console.log(results)
+        res.send(results)
+    }
+    catch(error){
+        console.log(error);
+        res.send(error)
+    }
+})
+
+//Delete data EndPoint
+router.delete('/shipmentIn',async (req,res)=>{
+    try{
+        const results = await queryPromise_Delete(req.body.serialNumber);
+        console.log(results)
+        res.send(results)
+    }
+    catch(error){
+        console.log(error)
+        res.send(error)
+    }
 })
 
 module.exports = router
